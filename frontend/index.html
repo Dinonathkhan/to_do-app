@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"],
+        textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            min-width: 150px;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            flex-basis: 100%;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-add {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .btn-delete {
+            background-color: #f56565;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-delete:hover {
+            background-color: #e53e3e;
+        }
+
+        .btn-edit {
+            background-color: #48bb78;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-edit:hover {
+            background-color: #38a169;
+        }
+
+        .btn-back {
+            background-color: #a0aec0;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-back:hover {
+            background-color: #718096;
+        }
+
+        .todos-container {
+            margin-top: 30px;
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            background: #f7fafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .todo-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+            border-left-color: #48bb78;
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            color: #a0aec0;
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .todo-description {
+            color: #718096;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .todo-date {
+            font-size: 0.8em;
+            color: #cbd5e0;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a0aec0;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .edit-form {
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .edit-form h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            background-color: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✓ My Todos</h1>
+
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+
+        <div id="mainForm">
+            <div class="input-group">
+                <input type="text" id="todoTitle" placeholder="What needs to be done?" autocomplete="off">
+                <textarea id="todoDescription" placeholder="Add a description (optional)"></textarea>
+                <div class="button-group">
+                    <button class="btn-add" onclick="addTodo()">Add Todo</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editForm" class="edit-form" style="display: none;">
+            <h2>Edit Todo</h2>
+            <div class="input-group">
+                <input type="text" id="editTitle" placeholder="What needs to be done?" autocomplete="off">
+                <textarea id="editDescription" placeholder="Add a description (optional)"></textarea>
+                <div class="button-group">
+                    <button class="btn-add" onclick="updateTodo()">Update Todo</button>
+                    <button class="btn-back" onclick="cancelEdit()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="todos-container">
+            <ul class="todo-list" id="todoList">
+                <div class="empty-state">
+                    <p>No todos yet. Create one to get started!</p>
+                </div>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:8000/api/todos';
+        let currentEditId = null;
+
+        // Load todos on page load
+        $(document).ready(function() {
+            loadTodos();
+            // Refresh todos every 5 seconds
+            setInterval(loadTodos, 5000);
+        });
+
+        function showError(message) {
+            $('#errorMessage').text(message).show();
+            setTimeout(() => $('#errorMessage').hide(), 5000);
+        }
+
+        function showSuccess(message) {
+            $('#successMessage').text(message).show();
+            setTimeout(() => $('#successMessage').hide(), 5000);
+        }
+
+        function loadTodos() {
+            $.ajax({
+                url: API_URL,
+                type: 'GET',
+                success: function(todos) {
+                    renderTodos(todos);
+                },
+                error: function(error) {
+                    console.error('Error loading todos:', error);
+                    $('#todoList').html('<div class="empty-state"><p>Error loading todos. Make sure the API is running.</p></div>');
+                }
+            });
+        }
+
+        function renderTodos(todos) {
+            const todoList = $('#todoList');
+
+            if (todos.length === 0) {
+                todoList.html('<div class="empty-state"><p>No todos yet. Create one to get started!</p></div>');
+                return;
+            }
+
+            let html = '';
+            todos.forEach(todo => {
+                const createdDate = new Date(todo.created_at).toLocaleDateString();
+                const completedClass = todo.completed ? 'completed' : '';
+
+                html += `
+                    <li class="todo-item ${completedClass}" id="todo-${todo.id}">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" ${todo.completed ? 'checked' : ''} 
+                                   onchange="toggleTodo(${todo.id}, this.checked)">
+                        </div>
+                        <div class="todo-content">
+                            <div class="todo-title">${escapeHtml(todo.title)}</div>
+                            ${todo.description ? `<div class="todo-description">${escapeHtml(todo.description)}</div>` : ''}
+                            <div class="todo-date">Created: ${createdDate}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-edit" onclick="editTodo(${todo.id}, '${escapeHtml(todo.title).replace(/'/g, "\\'")}', '${escapeHtml(todo.description || '').replace(/'/g, "\\'")}')">Edit</button>
+                            <button class="btn-delete" onclick="deleteTodo(${todo.id})">Delete</button>
+                        </div>
+                    </li>
+                `;
+            });
+
+            todoList.html(html);
+        }
+
+        function addTodo() {
+            const title = $('#todoTitle').val().trim();
+            const description = $('#todoDescription').val().trim();
+
+            if (!title) {
+                showError('Please enter a todo title');
+                return;
+            }
+
+            $.ajax({
+                url: API_URL,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    title: title,
+                    description: description || null,
+                    completed: false
+                }),
+                success: function(todo) {
+                    $('#todoTitle').val('');
+                    $('#todoDescription').val('');
+                    showSuccess('Todo added successfully!');
+                    loadTodos();
+                },
+                error: function(error) {
+                    showError('Error adding todo. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function editTodo(id, title, description) {
+            currentEditId = id;
+            $('#editTitle').val(title);
+            $('#editDescription').val(description);
+            $('#mainForm').hide();
+            $('#editForm').show();
+            $('#editTitle').focus();
+        }
+
+        function cancelEdit() {
+            currentEditId = null;
+            $('#mainForm').show();
+            $('#editForm').hide();
+            $('#editTitle').val('');
+            $('#editDescription').val('');
+        }
+
+        function updateTodo() {
+            if (currentEditId === null) return;
+
+            const title = $('#editTitle').val().trim();
+            const description = $('#editDescription').val().trim();
+
+            if (!title) {
+                showError('Please enter a todo title');
+                return;
+            }
+
+            $.ajax({
+                url: `${API_URL}/${currentEditId}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    title: title,
+                    description: description || null
+                }),
+                success: function(todo) {
+                    cancelEdit();
+                    showSuccess('Todo updated successfully!');
+                    loadTodos();
+                },
+                error: function(error) {
+                    showError('Error updating todo. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function toggleTodo(id, completed) {
+            $.ajax({
+                url: `${API_URL}/${id}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    completed: completed
+                }),
+                success: function(todo) {
+                    loadTodos();
+                },
+                error: function(error) {
+                    showError('Error updating todo. Please try again.');
+                    console.error('Error:', error);
+                    loadTodos(); // Reload to reset checkbox
+                }
+            });
+        }
+
+        function deleteTodo(id) {
+            if (!confirm('Are you sure you want to delete this todo?')) {
+                return;
+            }
+
+            $.ajax({
+                url: `${API_URL}/${id}`,
+                type: 'DELETE',
+                success: function() {
+                    showSuccess('Todo deleted successfully!');
+                    loadTodos();
+                },
+                error: function(error) {
+                    showError('Error deleting todo. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
